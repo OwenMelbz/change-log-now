@@ -1,0 +1,23 @@
+{
+  "name": "change-log-now",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^5.1.0",
+    "git-parse": "^1.0.4",
+    "lodash": "^4.17.15",
+    "luxon": "^1.24.1",
+    "plural": "^1.1.0"
+  },
+  "bin": {
+    "cln": "src/cli.js"
+  }
+}
