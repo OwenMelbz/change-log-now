@@ -123,7 +123,7 @@ const getAllCommits = () => {
 		let commits = [];
 
 		try {
-			commits = await gitToJs(process.cwd())
+			commits = (await gitToJs(process.cwd())).slice()
 		} catch (e) {
 			console.error(e.message)
 		}
@@ -167,6 +167,69 @@ const saveChangelog = data => {
 	fs.writeFileSync(getLogPath(), data.join('\n'));
 }
 
+const findLogIntersections = existingData => {
+	let lastEntryIndex = existingData.findIndex(row => row.indexOf('## ') === 0)
+
+	if (lastEntryIndex === -1) {
+		say('No existing logs found, appending to document.');
+		return {
+			start: existingData.length - 1,
+			end: existingData.length - 1,
+			lastEntry: '01/01/1970',
+		}
+	}
+
+	let lastEntry = ltrim(existingData[lastEntryIndex], '## ');
+
+	const today = DateTime.utc().startOf('day');
+	const lastDate = DateTime.fromFormat(
+		lastEntry,
+		getConfig('dateFormat')
+	).startOf('day');
+
+	if (today.toLocaleString() !== lastDate.toLocaleString()) {
+		say('Adding new entries to begging of the log.');
+		return {
+			start: lastEntryIndex,
+			end: lastEntryIndex,
+			lastEntry,
+		}
+	} else {
+		say('Updating today\'s log');
+		for (const index in existingData) {
+			if (existingData[index] !== existingData[lastEntryIndex]) {
+				if (existingData[index].indexOf('## ') === 0) {
+					return {
+						start: lastEntryIndex,
+						end: parseInt(index),
+						lastEntry,
+					}
+				}
+			}
+		}
+	}
+
+	return {
+		start: lastEntryIndex,
+		end: existingData.length - 1,
+		lastEntry,
+	}
+}
+
+const getLastEntries = () => {
+	const existingData = getExistingLogs();
+	const { start, end, lastEntry } = findLogIntersections(existingData);
+
+	const header = existingData.slice(0, start)
+	const footer = existingData.slice(end, existingData.length);
+
+	return {
+		header,
+		footer,
+		lastEntry: DateTime.fromFormat(lastEntry, getConfig('dateFormat')),
+	}
+}
+
 module.exports = {
 	getPkg,
 	getVersionNumber,
@@ -178,5 +241,6 @@ module.exports = {
 	generateDateSignature,
 	extractCommitData,
 	getExistingLogs,
-	saveChangelog
+	saveChangelog,
+	getLastEntries
 }

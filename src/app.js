@@ -1,43 +1,26 @@
 const {
-    getConfig,
     preflight,
-    getExistingLogs,
     getAllCommits,
-    generateDateSignature,
-    extractCommitData,
+    getLastEntries,
     saveChangelog,
 } = require('./helpers')
 
-const { DateTime } = require('luxon')
 const _ = require('lodash')
+const { DateTime } = require('luxon');
+
+const today = DateTime.local();
 
 preflight();
 
-const run = async () => {
-    const markdown = getExistingLogs();
+const run = async (refresh) => {
+    const { header, footer, lastEntry } = getLastEntries();
     const newRows = [];
-    const lastDateIndex = markdown.findIndex(line => line.indexOf('## ') === 0);
 
-    let headings = [];
-    let existing = [];
-    let lastDate = DateTime.fromISO('1970-01-01');
-
-    if (lastDateIndex !== -1) {
-        headings = markdown.slice(0, lastDateIndex)
-        existing = markdown.slice(lastDateIndex)
-        const dateLine = markdown[lastDateIndex].replace('## ', '');
-        lastDate = DateTime.fromFormat(dateLine, getConfig('dateFormat'));
-    } else {
-        headings = markdown.slice(0, markdown.length - 1);
-    }
-
-    if (!headings.length) {
-        newRows.push('');
-    }
-
-    const allCommits = (await getAllCommits()).filter(commit => {
-        return commit.date.object.startOf('day') >= lastDate.startOf('day');
-    })
+    const allCommits = (await getAllCommits())
+        .filter(commit => {
+            return commit.date.object.startOf('day') > lastEntry.startOf('day') ||
+                commit.date.object.startOf('day').toLocaleString() === today.startOf('day').toLocaleString()
+        })
 
     const commitsByDate = _.groupBy(allCommits, 'date.string')
 
@@ -61,13 +44,15 @@ const run = async () => {
         })
     });
 
+    // console.log(header, footer)
+
     const writeData = [
-        ...headings,
+        ...header,
         ...newRows,
-        ...existing
+        ...footer
     ];
 
     saveChangelog(writeData);
 }
 
-run();
+module.exports = run;
