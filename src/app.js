@@ -6,6 +6,7 @@ const {
     defaultCommitFilter,
     done,
     getConfig,
+    orderGroup,
 } = require("./helpers");
 
 const _ = require("lodash");
@@ -33,7 +34,7 @@ const run = async (refresh) => {
         newRows.push(`## ${date}`);
         newRows.push("");
 
-        _.each(groups, (commits, type) => {
+        _.each(orderGroup(groups), (commits, type) => {
             newRows.push(`### ${type}`);
             newRows.push("");
 

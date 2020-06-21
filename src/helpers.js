@@ -78,7 +78,7 @@ const capitalize = (s) => {
 	return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
-const formatMessage = (messageParts) => {
+const formatMessage = (commit, group, allCommits, messageParts) => {
 	let message = messageParts.pop().trim();
 	message = ltrim(message, getConfig("separator")).trim();
 
@@ -89,12 +89,34 @@ const formatMessage = (messageParts) => {
 	message = (rtrim(message, ".").trim() || "no commit message") + ".";
 	message = capitalize(message);
 
+	const customFormatter = getConfig('customMessageFormatter');
+
+	if (customFormatter) {
+		message = customFormatter({
+			commit,
+			group,
+			allCommits,
+			resolvedConfig: getConfig(),
+			clnMessage: message,
+		})
+	}
+
 	return message;
 }
 
-const formatGroup = (group) => {
+const formatGroup = (group, commit) => {
 	if (getConfig("pluraliseTrigger")) {
-		return plural(group, 2);
+		group =  plural(group, 2);
+	}
+
+	const customGroupFormatter = getConfig('customHeadingFormatter');
+
+	if (customGroupFormatter) {
+		group = customGroupFormatter({
+			group,
+			commit,
+			resolvedConfig: getConfig()
+		})
 	}
 
 	return group;
@@ -106,34 +128,30 @@ const defaultCommitFilter = (refresh, commit, lastEntry, today) => {
 		datesEqual(commit.date.object, today);
 }
 
-const formatCommit = (commit, allCommits) => {
+const getTriggers = () => {
 	const triggers = getConfig("triggers");
+	const triggerMap = !Array.isArray(triggers);
+
+	return {
+		triggerLoop: triggerMap ? Object.keys(triggers) : triggers,
+		triggers,
+		triggerMap,
+	}
+}
+
+const formatCommit = (commit, allCommits) => {
+	const { triggers, triggerMap, triggerLoop } = getTriggers("triggers");
 	let group = null;
 	let message = null;
 
-	const hasPrefixMap = !Array.isArray(triggers);
-	const loopables = hasPrefixMap ? Object.keys(triggers) : triggers;
-
-	for (const prefix of loopables) {
+	for (const prefix of triggerLoop) {
 		const messageParts = (commit.message || "").split(prefix);
 
 		if (messageParts.length === 2) {
-			group = hasPrefixMap ? triggers[prefix] : prefix;
+			group = triggerMap ? triggers[prefix] : prefix;
 
-			const customGroupFormatter = getConfig('customHeadingFormatter');
-			const customFormatter = getConfig('customMessageFormatter');
-
-			group = formatGroup(group);
-			message = formatMessage(messageParts);
-
-			group = customGroupFormatter ? customGroupFormatter({group, commit, resolvedConfig: getConfig()}) : group;
-			message = customFormatter ? customFormatter({
-				commit,
-				group,
-				allCommits,
-				resolvedConfig: getConfig(),
-				clnMessage: message,
-			}) : message;
+			group = formatGroup(group, commit);
+			message = formatMessage(commit, group, allCommits, messageParts);
 
 			break;
 		}
@@ -245,6 +263,21 @@ const findLogIntersections = (existingLogs) => {
 	};
 };
 
+const orderGroup = group => {
+	const { triggers } = getTriggers();
+	const ordered = {};
+
+	triggers.forEach(trigger => {
+		const heading = formatGroup(trigger);
+
+		if (group[heading]) {
+			ordered[heading] = group[heading];
+		}
+	})
+
+	return ordered;
+};
+
 const getLastEntries = (refresh) => {
 	const existingLogs = getExistingLogs();
 	done('Fetching existing changelog.')
@@ -270,7 +303,9 @@ const olderThan = (d1, d2) => {
 	return d1.startOf("day") > d2.startOf("day");
 };
 
-const done = message => console.log(log.ok(message));
+const done = message => {
+	console.log(log.ok(message));
+}
 
 module.exports = {
 	preflight,
@@ -284,4 +319,5 @@ module.exports = {
 	getConfig,
 	say,
 	done,
+	orderGroup,
 };

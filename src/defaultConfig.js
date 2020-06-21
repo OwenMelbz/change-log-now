@@ -19,9 +19,9 @@ module.exports = {
      * displayed within the changelog.
      */
 	triggers: [
-		"🐛 Bug",
 		"🚀 Feature",
 		"💥 Change",
+		"🐛 Bug",
 		"📝 Documentation",
 	],
 
