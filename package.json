@@ -13,6 +13,14 @@
   ],
   "author": "owenm@hey.com",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OwenMelbz/change-log-now.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OwenMelbz/change-log-now/issues"
+  },
+  "homepage": "https://github.com/OwenMelbz/change-log-now#readme",
   "dependencies": {
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
