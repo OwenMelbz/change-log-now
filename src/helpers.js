@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const { gitToJs } = require('git-parse');
 const { DateTime } = require('luxon');
 const plural = require('plural');
+const _ = require('lodash');
 
 let cachedConfig = null;
 
@@ -88,14 +89,17 @@ const formatCommit = commit => {
 	let group = null;
 	let message = 'No commit message.'
 
-	for (const prefix of prefixes) {
+	const hasPrefixMap = !Array.isArray(prefixes);
+	const loopables = hasPrefixMap ?  Object.keys(prefixes) : prefixes;
+
+	for (const prefix of loopables) {
 		const messageParts = (commit.message || '').split(prefix);
 
 		if (messageParts.length === 2) {
+			group = hasPrefixMap ? prefixes[prefix] : prefix;
+
 			if (getConfig('pluralisePrefix')) {
-				group = plural(prefix, 2)
-			} else {
-				group = prefix;
+				group = plural(group, 2)
 			}
 
 			message = messageParts.pop().trim();
@@ -140,20 +144,6 @@ const generateDateSignature = date => {
 		string: object.toFormat(
 			getConfig('dateFormat')
 		)
-	}
-}
-
-const extractCommitData = commit => {
-	const parts = commit.message.split(getConfig('separator'));
-	const typeIndex = Object.values(getConfig('prefixes')).indexOf(parts[0])
-	const type = Object.keys(getConfig('prefixes'))[typeIndex];
-
-	return {
-		sha: commit.hash.substring(0, 7),
-		type,
-		prettyType: parts[0] + 's',
-		message: parts[1],
-		exclude: typeIndex === -1 || type === 'wip',
 	}
 }
 
@@ -216,7 +206,7 @@ const findLogIntersections = existingData => {
 	}
 }
 
-const getLastEntries = () => {
+const getLastEntries = refresh => {
 	const existingData = getExistingLogs();
 	const { start, end, lastEntry } = findLogIntersections(existingData);
 
@@ -225,9 +215,17 @@ const getLastEntries = () => {
 
 	return {
 		header,
-		footer,
+		footer: refresh ? [] : footer,
 		lastEntry: DateTime.fromFormat(lastEntry, getConfig('dateFormat')),
 	}
+}
+
+const datesEqual = (d1, d2) => {
+	return d1.startOf('day').toLocaleString() === d2.startOf('day').toLocaleString()
+}
+
+const olderThan = (d1, d2) => {
+	return d1.startOf('day') > d2.startOf('day')
 }
 
 module.exports = {
@@ -239,8 +237,9 @@ module.exports = {
 	preflight,
 	getAllCommits,
 	generateDateSignature,
-	extractCommitData,
 	getExistingLogs,
 	saveChangelog,
-	getLastEntries
+	getLastEntries,
+	datesEqual,
+	olderThan,
 }

@@ -3,6 +3,8 @@ const {
     getAllCommits,
     getLastEntries,
     saveChangelog,
+    olderThan,
+    datesEqual,
 } = require('./helpers')
 
 const _ = require('lodash')
@@ -12,14 +14,15 @@ const today = DateTime.local();
 
 preflight();
 
-const run = async (refresh) => {
-    const { header, footer, lastEntry } = getLastEntries();
+const run = async refresh => {
+    const { header, footer, lastEntry } = getLastEntries(refresh);
     const newRows = [];
 
     const allCommits = (await getAllCommits())
         .filter(commit => {
-            return commit.date.object.startOf('day') > lastEntry.startOf('day') ||
-                commit.date.object.startOf('day').toLocaleString() === today.startOf('day').toLocaleString()
+            return refresh ||
+                olderThan(commit.date.object, lastEntry) ||
+                datesEqual(commit.date.object, today)
         })
 
     const commitsByDate = _.groupBy(allCommits, 'date.string')
@@ -43,8 +46,6 @@ const run = async (refresh) => {
             newRows.push('');
         })
     });
-
-    // console.log(header, footer)
 
     const writeData = [
         ...header,
