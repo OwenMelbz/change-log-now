@@ -76,20 +76,20 @@ const capitalize = (s) => {
 };
 
 const formatCommit = (commit) => {
-	const prefixes = getConfig("prefixes");
+	const triggers = getConfig("triggers");
 	let group = null;
 	let message = "No commit message.";
 
-	const hasPrefixMap = !Array.isArray(prefixes);
-	const loopables = hasPrefixMap ? Object.keys(prefixes) : prefixes;
+	const hasPrefixMap = !Array.isArray(triggers);
+	const loopables = hasPrefixMap ? Object.keys(triggers) : triggers;
 
 	for (const prefix of loopables) {
 		const messageParts = (commit.message || "").split(prefix);
 
 		if (messageParts.length === 2) {
-			group = hasPrefixMap ? prefixes[prefix] : prefix;
+			group = hasPrefixMap ? triggers[prefix] : prefix;
 
-			if (getConfig("pluralisePrefix")) {
+			if (getConfig("pluraliseTrigger")) {
 				group = plural(group, 2);
 			}
 

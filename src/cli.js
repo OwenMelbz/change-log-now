@@ -4,7 +4,7 @@ const { getVersionNumber } = require("./helpers");
 
 program
 	.description(
-		"Automatically generate a Change Log file based off your commit messages."
+		"Automatically generate a CHANGELOG file based off your commit messages."
 	)
 	.option("--init", "Creates a change log config")
 	.option("--refresh", "Regenerates from the whole commit history")

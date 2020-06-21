@@ -1,4 +1,5 @@
 module.exports = {
+
 	fileName: "CHANGELOG.md",
 
 	/*
@@ -8,7 +9,7 @@ module.exports = {
 	dateFormat: "dd/LL/yyyy",
 
 	/*
-     * This separates your "prefix" from your actual commit message.
+     * This separates your "trigger" from your actual commit message.
      * You can leave this as an empty string if you do not use one.
      */
 	separator: "-",
@@ -17,7 +18,7 @@ module.exports = {
      * Only commits prefixed with these markers will be
      * displayed within the changelog.
      */
-	prefixes: [
+	triggers: [
 		"🐛 Bug",
 		"🚀 Feature",
 		"💥 Change",
@@ -25,7 +26,7 @@ module.exports = {
 	],
 
 	/*
-     * If you want the prefix to be pluralised in the output.
+     * If you want the trigger text to be pluralised when converted to a heading.
      */
-	pluralisePrefix: true,
+	pluraliseTrigger: true,
 };
