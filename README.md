@@ -104,6 +104,26 @@ npm run changelog
 yarn changelog
 ```
 
+### Amending the log manually
+
+You might notice that some of your commit messages are less than ideal and that once you've generated them you want to tidy them up a bit.
+
+CLN uses line-numbers to decide where to update the changelog, and it will only affect now/future entries.
+
+This means that you are free to modify any of the data generated within the changelog to fix typos, alaborate etc.
+
+When we update the change log we do not touch anything from previous entries
+
+> NOTICE - If you're adjusting text content from "today's" commits, then each time you run `cln` it will overwrite todays to add in any new changes. If you're commiting this changelog as you go, you can simply discard any undesired changes if you've needed to amend it.
+
+Additionally, if you do NOT want to preserve old messages or want to generate from scratch, you can do so by passing the `--refresh` flag e.g.
+
+```bash
+cln --refresh
+```
+
+This will generate the changelog history from the beginning of time.
+
 ## Configuration
 
 ## File name and contents
@@ -133,7 +153,7 @@ CLN will ignore everything above the first date entry e.g. You can create someth
 
 ## Date formatting
 
-By default CLN ships with the British date format, because it looks good :D (and I'm British) but this can be
+By default, CLN ships with the British date format, because it looks good :D (and I'm British) but this can be
 configured using the `dateFormat` key within the `changelog.config.js`.
 
 We use Luxon to handle dates, so you're able to use the "Standalone Tokens" to create your own date formatting which
@@ -165,7 +185,7 @@ Don't worry about any whitespace, we'll trim that for you!
 
 Triggers are handled within `commitMsg.indexOf('TRIGGER') === 0` - So it **MUST** be the first in the commit message.
 
-By default we assume your trigger is the same as your changelog heading pluralised and is defined as a flat array e.g.
+By default, we assume your trigger is the same as your changelog heading pluralised and is defined as a flat array e.g.
 
 ```
 triggers: [
@@ -191,7 +211,7 @@ This would generate the following:
 - XXX
 ```
 
-However if you want to map a different trigger word to your heading you can use the object syntax e.g.
+However, if you want to map a different trigger word to your heading you can use the object syntax e.g.
 
 ```
 triggers: {
@@ -205,5 +225,11 @@ The key of the entry is the heading, and the value of the entry is the trigger w
 
 ### Pluralisation
 
-By default we pluralise your trigger word before using it as a heading e.g. `Bug` becomes `Bugs` - you can 
+By default, we pluralise your trigger word before using it as a heading e.g. `Bug` becomes `Bugs` - you can 
 turn this off by setting `pluraliseTrigger` to `false`.
+
+## To Do
+
+- Enforce consistent header orders,
+- Custom message formatter,
+- Control trigger location, 
