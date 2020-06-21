@@ -5,6 +5,8 @@
 Change Log NOW!!! (CLN) is a simple CLI tool which will generate you a CHANGELOG file using pre-defined trigger words
 to extract specific commits based off defined conventions.
 
+You can see a generated example [here](https://github.com/OwenMelbz/change-log-now/blob/master/CHANGELOG.md)!
+
 This will convert a commit history which looks like...
 
 ```
