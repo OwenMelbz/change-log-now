@@ -110,11 +110,11 @@ You might notice that some of your commit messages are less than ideal and that 
 
 CLN uses line-numbers to decide where to update the changelog, and it will only affect now/future entries.
 
-This means that you are free to modify any of the data generated within the changelog to fix typos, alaborate etc.
+This means that you are free to modify any of the data generated within the changelog to fix typos, elaborate etc.
 
 When we update the change log we do not touch anything from previous entries
 
-> NOTICE - If you're adjusting text content from "today's" commits, then each time you run `cln` it will overwrite todays to add in any new changes. If you're commiting this changelog as you go, you can simply discard any undesired changes if you've needed to amend it.
+> NOTICE - If you're adjusting text content from "today's" commits, then each time you run `cln` it will overwrite today's to add in any new changes. If you're commiting this changelog as you go, you can simply discard any undesired changes if you've needed to amend it.
 
 Additionally, if you do NOT want to preserve old messages or want to generate from scratch, you can do so by passing the `--refresh` flag e.g.
 
