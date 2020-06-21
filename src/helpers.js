@@ -5,6 +5,7 @@ const { gitToJs } = require("git-parse");
 const { DateTime } = require("luxon");
 const plural = require("plural");
 const _ = require("lodash");
+const log = require('log-utils');
 
 let cachedConfig = null;
 
@@ -56,6 +57,8 @@ const preflight = () => {
 	const logPath = getLogPath();
 
 	if (!fs.existsSync(logPath)) {
+		done(`Creating ${logPath}`);
+
 		fs.writeFileSync(logPath, "");
 	}
 };
@@ -162,6 +165,8 @@ const getAllCommits = () => {
 			console.error(e.message);
 		}
 
+		done(`A total of ${commits.length} commits found.`)
+
 		return resolve(commits.map(c => formatCommit(c, commits)).filter((c) => c));
 	});
 };
@@ -191,7 +196,8 @@ const findLogIntersections = (existingLogs) => {
 	);
 
 	if (lastEntryIndex === -1) {
-		say("No existing logs found, appending to document.");
+		done('Empty changelog found - Starting from the beginning of time itself.')
+
 		return {
 			start: existingLogs.length - 1,
 			end: existingLogs.length - 1,
@@ -210,14 +216,15 @@ const findLogIntersections = (existingLogs) => {
 	).startOf("day");
 
 	if (today.toString() !== lastDate.toString()) {
-		say("Adding new entries to begging of the log.");
+		done('Adding new entries to beginning of the changelog.');
+
 		return {
 			start: lastEntryIndex,
 			end: lastEntryIndex,
 			lastEntry,
 		};
 	} else {
-		say("Updating today's log");
+		done('Found commits for today - refreshing changelog.');
 		for (const index in existingLogs) {
 			if (existingLogs[index] !== existingLogs[lastEntryIndex]) {
 				if (existingLogs[index].indexOf("## ") === 0) {
@@ -240,7 +247,10 @@ const findLogIntersections = (existingLogs) => {
 
 const getLastEntries = (refresh) => {
 	const existingLogs = getExistingLogs();
+	done('Fetching existing changelog.')
+
 	const { start, end, lastEntry } = findLogIntersections(existingLogs);
+	done(`Changelog intersections calculated between line ${start} and ${end}.`)
 
 	const header = existingLogs.slice(0, start);
 	const footer = existingLogs.slice(end, existingLogs.length);
@@ -260,6 +270,8 @@ const olderThan = (d1, d2) => {
 	return d1.startOf("day") > d2.startOf("day");
 };
 
+const done = message => console.log(log.ok(message));
+
 module.exports = {
 	preflight,
 	getAllCommits,
@@ -270,4 +282,6 @@ module.exports = {
 	getVersionNumber,
 	defaultCommitFilter,
 	getConfig,
+	say,
+	done,
 };

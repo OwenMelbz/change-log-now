@@ -262,5 +262,4 @@ customHeadingFormatter: ({ group, commit, resolvedConfig, clnHeading }) => {
 ## To Do
 
 - Enforce consistent header orders,
-- Nicer CLI messaging/reporting,
 - Control trigger location.
