@@ -1,6 +1,6 @@
 # Change Log NOW!!! (automatic-changelog)
 
-img 
+<img style="width: 250px; height: auto;" src="https://raw.githubusercontent.com/OwenMelbz/change-log-now/master/screenshot.jpg" alt="screenshot" />
 
 Change Log NOW!!! (CLN) is a simple CLI tool which will generate you a CHANGELOG file using pre-defined trigger words
 to extract specific commits based off defined conventions.
