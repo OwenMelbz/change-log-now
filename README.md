@@ -63,19 +63,19 @@ It will generate a `changelog.config.js` in the root of your repo with something
 ```javascript
 module.exports = {
 
-	fileName: "CHANGELOG.md",
+  fileName: "CHANGELOG.md",
 
-	dateFormat: "dd/LL/yyyy",
+  dateFormat: "dd/LL/yyyy",
 
-	separator: "-",
+  separator: "-",
 
-	triggers: [
-		"🐛 Bug",
-		"🚀 Feature",
-		"💥 Change",
-	],
+  triggers: [
+    "🐛 Bug",
+    "🚀 Feature",
+    "💥 Change",
+  ],
 
-	pluraliseTrigger: true,
+  pluraliseTrigger: true,
 };
 ```
 
