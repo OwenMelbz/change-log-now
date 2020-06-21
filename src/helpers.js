@@ -1,63 +1,54 @@
-const fs = require('fs');
-const path = require('path');
-const chalk = require('chalk');
-const { gitToJs } = require('git-parse');
-const { DateTime } = require('luxon');
-const plural = require('plural');
-const _ = require('lodash');
+const fs = require("fs");
+const path = require("path");
+const chalk = require("chalk");
+const { gitToJs } = require("git-parse");
+const { DateTime } = require("luxon");
+const plural = require("plural");
+const _ = require("lodash");
 
 let cachedConfig = null;
 
-const getSysPath = fileName => path.join(__dirname, fileName);
+const getSysPath = (fileName) => path.join(__dirname, fileName);
 
-const getUserPath = fileName => path.join(process.cwd(), fileName);
+const getUserPath = (fileName) => path.join(process.cwd(), fileName);
 
-const getLogPath = () => getUserPath(getConfig('fileName'))
+const getLogPath = () => getUserPath(getConfig("fileName"));
 
 const getPkg = () => {
-	return require(
-		getSysPath('../package.json')
-	);
-}
+	return require(getSysPath("../package.json"));
+};
 
 const getVersionNumber = () => {
 	return getPkg().version;
-}
+};
 
 const say = (text, colour) => {
-	console.log(chalk[colour || 'cyan'](text || ''))
-}
+	console.log(chalk[colour || "cyan"](text || ""));
+};
 
-const defaultConfig = () => {
-	return fs.readFileSync(
-		getSysPath('defaultConfig.js'),
-		'utf8'
-	);
-}
-
-const getConfig = key => {
+const getConfig = (key) => {
 	if (cachedConfig) {
 		if (key) {
-			return cachedConfig[key]
+			return cachedConfig[key];
 		}
 
 		return cachedConfig;
 	}
 
-	const configPath = getUserPath('changelog.config.js')
+	const configPath = getUserPath("changelog.config.js");
 
 	if (fs.existsSync(configPath)) {
 		cachedConfig = require(configPath);
 	} else {
-		cachedConfig = require(getSysPath('defaultConfig.js'));
+		cachedConfig = require(getSysPath("defaultConfig.js"));
 	}
 
 	if (key) {
-		return cachedConfig[key]
+		return cachedConfig[key];
 	}
 
 	return cachedConfig;
-}
+};
 
 const preflight = () => {
 	getConfig();
@@ -65,46 +56,46 @@ const preflight = () => {
 	const logPath = getLogPath();
 
 	if (!fs.existsSync(logPath)) {
-		fs.writeFileSync(logPath, `# Change Log`);
+		fs.writeFileSync(logPath, "");
 	}
-}
+};
 
 const ltrim = (string, charlist) => {
-	if (charlist === undefined) charlist = '\s';
-	return string.replace(new RegExp('^[' + charlist + ']+'), '');
+	if (charlist === undefined) charlist = "s";
+	return string.replace(new RegExp("^[" + charlist + "]+"), "");
 };
 
 const rtrim = (string, charlist) => {
-	if (charlist === undefined) charlist = '\s';
-	return string.replace(new RegExp('[' + charlist + ']+$'), '');
+	if (charlist === undefined) charlist = "s";
+	return string.replace(new RegExp("[" + charlist + "]+$"), "");
 };
 
-const capitalize = s => {
-	if (typeof s !== 'string') return '';
+const capitalize = (s) => {
+	if (typeof s !== "string") return "";
 	return s.charAt(0).toUpperCase() + s.slice(1);
-}
+};
 
-const formatCommit = commit => {
-	const prefixes = getConfig('prefixes');
+const formatCommit = (commit) => {
+	const prefixes = getConfig("prefixes");
 	let group = null;
-	let message = 'No commit message.'
+	let message = "No commit message.";
 
 	const hasPrefixMap = !Array.isArray(prefixes);
-	const loopables = hasPrefixMap ?  Object.keys(prefixes) : prefixes;
+	const loopables = hasPrefixMap ? Object.keys(prefixes) : prefixes;
 
 	for (const prefix of loopables) {
-		const messageParts = (commit.message || '').split(prefix);
+		const messageParts = (commit.message || "").split(prefix);
 
 		if (messageParts.length === 2) {
 			group = hasPrefixMap ? prefixes[prefix] : prefix;
 
-			if (getConfig('pluralisePrefix')) {
-				group = plural(group, 2)
+			if (getConfig("pluralisePrefix")) {
+				group = plural(group, 2);
 			}
 
 			message = messageParts.pop().trim();
-			message = ltrim(message, getConfig('separator')).trim();
-			message = (rtrim(message, '.').trim() || 'no commit message') + '.';
+			message = ltrim(message, getConfig("separator")).trim();
+			message = (rtrim(message, ".").trim() || "no commit message") + ".";
 			message = capitalize(message);
 			break;
 		}
@@ -119,81 +110,83 @@ const formatCommit = commit => {
 		date: generateDateSignature(commit.date),
 		group,
 		message,
-	}
-}
+	};
+};
 
 const getAllCommits = () => {
 	return new Promise(async (resolve, reject) => {
 		let commits = [];
 
 		try {
-			commits = (await gitToJs(process.cwd())).slice()
+			commits = (await gitToJs(process.cwd())).slice();
 		} catch (e) {
-			console.error(e.message)
+			console.error(e.message);
 		}
 
-		return resolve(commits.map(formatCommit).filter(c => c))
-	})
-}
+		return resolve(commits.map(formatCommit).filter((c) => c));
+	});
+};
 
-const generateDateSignature = date => {
+const generateDateSignature = (date) => {
 	const object = DateTime.fromRFC2822(date);
 
 	return {
 		object,
-		string: object.toFormat(
-			getConfig('dateFormat')
-		)
-	}
-}
+		string: object.toFormat(getConfig("dateFormat")),
+	};
+};
 
 const getExistingLogs = () => {
-	return fs.readFileSync(getUserPath(
-		getConfig('fileName')
-	), 'utf8').split('\n');
-}
+	return fs
+		.readFileSync(getUserPath(getConfig("fileName")), "utf8")
+		.split("\n");
+};
 
-const saveChangelog = data => {
-	fs.writeFileSync(getLogPath(), data.join('\n'));
-}
+const saveChangelog = (data) => {
+	fs.writeFileSync(getLogPath(), data.join("\n"));
+};
 
-const findLogIntersections = existingData => {
-	let lastEntryIndex = existingData.findIndex(row => row.indexOf('## ') === 0)
+const findLogIntersections = (existingLogs) => {
+	let lastEntryIndex = existingLogs.findIndex(
+		(row) => row.indexOf("## ") === 0
+	);
 
 	if (lastEntryIndex === -1) {
-		say('No existing logs found, appending to document.');
+		say("No existing logs found, appending to document.");
 		return {
-			start: existingData.length - 1,
-			end: existingData.length - 1,
-			lastEntry: '01/01/1970',
-		}
+			start: existingLogs.length - 1,
+			end: existingLogs.length - 1,
+			lastEntry: DateTime.fromFormat("01/01/1970", "dd/LL/yyyy").toFormat(
+				getConfig("dateFormat")
+			),
+		};
 	}
 
-	let lastEntry = ltrim(existingData[lastEntryIndex], '## ');
+	let lastEntry = ltrim(existingLogs[lastEntryIndex], "## ");
 
-	const today = DateTime.utc().startOf('day');
+	const today = DateTime.local().startOf("day");
 	const lastDate = DateTime.fromFormat(
 		lastEntry,
-		getConfig('dateFormat')
-	).startOf('day');
+		getConfig("dateFormat")
+	).startOf("day");
 
-	if (today.toLocaleString() !== lastDate.toLocaleString()) {
-		say('Adding new entries to begging of the log.');
+	if (today.toString() !== lastDate.toString()) {
+		say("Adding new entries to begging of the log.");
 		return {
 			start: lastEntryIndex,
 			end: lastEntryIndex,
 			lastEntry,
-		}
+		};
 	} else {
-		say('Updating today\'s log');
-		for (const index in existingData) {
-			if (existingData[index] !== existingData[lastEntryIndex]) {
-				if (existingData[index].indexOf('## ') === 0) {
+		say("Updating today's log");
+		for (const index in existingLogs) {
+			if (existingLogs[index] !== existingLogs[lastEntryIndex]) {
+				if (existingLogs[index].indexOf("## ") === 0) {
 					return {
 						start: lastEntryIndex,
 						end: parseInt(index),
 						lastEntry,
-					}
+					};
 				}
 			}
 		}
@@ -201,45 +194,39 @@ const findLogIntersections = existingData => {
 
 	return {
 		start: lastEntryIndex,
-		end: existingData.length - 1,
+		end: existingLogs.length - 1,
 		lastEntry,
-	}
-}
+	};
+};
 
-const getLastEntries = refresh => {
-	const existingData = getExistingLogs();
-	const { start, end, lastEntry } = findLogIntersections(existingData);
+const getLastEntries = (refresh) => {
+	const existingLogs = getExistingLogs();
+	const { start, end, lastEntry } = findLogIntersections(existingLogs);
 
-	const header = existingData.slice(0, start)
-	const footer = existingData.slice(end, existingData.length);
+	const header = existingLogs.slice(0, start);
+	const footer = existingLogs.slice(end, existingLogs.length);
 
 	return {
 		header,
 		footer: refresh ? [] : footer,
-		lastEntry: DateTime.fromFormat(lastEntry, getConfig('dateFormat')),
-	}
-}
+		lastEntry: DateTime.fromFormat(lastEntry, getConfig("dateFormat")),
+	};
+};
 
 const datesEqual = (d1, d2) => {
-	return d1.startOf('day').toLocaleString() === d2.startOf('day').toLocaleString()
-}
+	return d1.startOf("day").toString() === d2.startOf("day").toString();
+};
 
 const olderThan = (d1, d2) => {
-	return d1.startOf('day') > d2.startOf('day')
-}
+	return d1.startOf("day") > d2.startOf("day");
+};
 
 module.exports = {
-	getPkg,
-	getVersionNumber,
-	say,
-	defaultConfig,
-	getConfig,
 	preflight,
 	getAllCommits,
-	generateDateSignature,
-	getExistingLogs,
-	saveChangelog,
 	getLastEntries,
-	datesEqual,
+	saveChangelog,
 	olderThan,
-}
+	datesEqual,
+	getVersionNumber,
+};
