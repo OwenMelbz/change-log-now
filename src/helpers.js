@@ -75,10 +75,38 @@ const capitalize = (s) => {
 	return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
-const formatCommit = (commit) => {
+const formatMessage = (messageParts) => {
+	let message = messageParts.pop().trim();
+	message = ltrim(message, getConfig("separator")).trim();
+
+	if (!message && getConfig('skipEmptyCommitMessages')) {
+		return null;
+	}
+
+	message = (rtrim(message, ".").trim() || "no commit message") + ".";
+	message = capitalize(message);
+
+	return message;
+}
+
+const formatGroup = (group) => {
+	if (getConfig("pluraliseTrigger")) {
+		return plural(group, 2);
+	}
+
+	return group;
+}
+
+const defaultCommitFilter = (refresh, commit, lastEntry, today) => {
+	return refresh ||
+		olderThan(commit.date.object, lastEntry) ||
+		datesEqual(commit.date.object, today);
+}
+
+const formatCommit = (commit, allCommits) => {
 	const triggers = getConfig("triggers");
 	let group = null;
-	let message = "No commit message.";
+	let message = null;
 
 	const hasPrefixMap = !Array.isArray(triggers);
 	const loopables = hasPrefixMap ? Object.keys(triggers) : triggers;
@@ -89,19 +117,30 @@ const formatCommit = (commit) => {
 		if (messageParts.length === 2) {
 			group = hasPrefixMap ? triggers[prefix] : prefix;
 
-			if (getConfig("pluraliseTrigger")) {
-				group = plural(group, 2);
-			}
+			const customGroupFormatter = getConfig('customHeadingFormatter');
+			const customFormatter = getConfig('customMessageFormatter');
 
-			message = messageParts.pop().trim();
-			message = ltrim(message, getConfig("separator")).trim();
-			message = (rtrim(message, ".").trim() || "no commit message") + ".";
-			message = capitalize(message);
+			group = formatGroup(group);
+			message = formatMessage(messageParts);
+
+			group = customGroupFormatter ? customGroupFormatter({group, commit, resolvedConfig: getConfig()}) : group;
+			message = customFormatter ? customFormatter({
+				commit,
+				group,
+				allCommits,
+				resolvedConfig: getConfig(),
+				clnMessage: message,
+			}) : message;
+
 			break;
 		}
 	}
 
 	if (!group) {
+		return null;
+	}
+
+	if (!message && getConfig('skipEmptyCommitMessages')) {
 		return null;
 	}
 
@@ -123,7 +162,7 @@ const getAllCommits = () => {
 			console.error(e.message);
 		}
 
-		return resolve(commits.map(formatCommit).filter((c) => c));
+		return resolve(commits.map(c => formatCommit(c, commits)).filter((c) => c));
 	});
 };
 
@@ -229,4 +268,6 @@ module.exports = {
 	olderThan,
 	datesEqual,
 	getVersionNumber,
+	defaultCommitFilter,
+	getConfig,
 };

@@ -3,8 +3,7 @@ const {
     getAllCommits,
     getLastEntries,
     saveChangelog,
-    olderThan,
-    datesEqual,
+    defaultCommitFilter,
 } = require("./helpers");
 
 const _ = require("lodash");
@@ -18,19 +17,9 @@ const run = async (refresh) => {
     const { header, footer, lastEntry } = getLastEntries(refresh);
     const newRows = [];
 
-    const allCommits = (await getAllCommits()).filter((commit) => {
-        return (
-            refresh ||
-            olderThan(commit.date.object, lastEntry) ||
-            datesEqual(commit.date.object, today)
-        );
-    });
-
+    const allCommits = (await getAllCommits()).filter((commit) => defaultCommitFilter(refresh, commit, lastEntry, today));
     const commitsByDate = _.groupBy(allCommits, "date.string");
-
-    const commitsGrouped = _.mapValues(commitsByDate, (commits) => {
-        return _.groupBy(commits, "group");
-    });
+    const commitsGrouped = _.mapValues(commitsByDate, (commits) => _.groupBy(commits, "group"));
 
     _.each(commitsGrouped, (groups, date) => {
         newRows.push(`## ${date}`);

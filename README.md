@@ -76,6 +76,13 @@ module.exports = {
   ],
 
   pluraliseTrigger: true,
+  
+  skipEmptyCommitMessages: false,
+ 
+  customMessageFormatter: null,
+  
+  customHeadingFormatter: null,
+
 };
 ```
 
@@ -126,7 +133,7 @@ This will generate the changelog history from the beginning of time.
 
 ## Configuration
 
-## File name and contents
+### File name and contents
 
 CLN works on a "convention" pattern, meaning it will only parse data that matches its conventions. This means you're able to add extra data into your changelog.
 
@@ -151,7 +158,7 @@ CLN will ignore everything above the first date entry e.g. You can create someth
 - You can now configure your triggers yoursself! (570e69e9e)
 ```
 
-## Date formatting
+### Date formatting
 
 By default, CLN ships with the British date format, because it looks good :D (and I'm British) but this can be
 configured using the `dateFormat` key within the `changelog.config.js`.
@@ -159,7 +166,7 @@ configured using the `dateFormat` key within the `changelog.config.js`.
 We use Luxon to handle dates, so you're able to use the "Standalone Tokens" to create your own date formatting which
 can all be found: [https://moment.github.io/luxon/docs/manual/formatting.html#standalone-vs-format-tokens](https://moment.github.io/luxon/docs/manual/formatting.html#standalone-vs-format-tokens)
 
-## Commit message separator
+### Commit message separator
 
 Often your trigger and commit message will have a separator/deliminator for readability e.g.
 
@@ -181,7 +188,7 @@ separator: ""
 
 Don't worry about any whitespace, we'll trim that for you!
 
-## Triggers
+### Triggers
 
 Triggers are handled within `commitMsg.indexOf('TRIGGER') === 0` - So it **MUST** be the first in the commit message.
 
@@ -228,9 +235,32 @@ The key of the entry is the heading, and the value of the entry is the trigger w
 By default, we pluralise your trigger word before using it as a heading e.g. `Bug` becomes `Bugs` - you can 
 turn this off by setting `pluraliseTrigger` to `false`.
 
+### Skipping empty commit messages
+
+You can enable/disable this feature by setting `skipEmptyCommitMessages` to `true` or `false`
+
+### Custom Formatters
+
+By default, we ship with some message and heading formatters, however you can supply your own from the config.
+
+#### Custom Message
+
+```javascript
+customMessageFormatter: ({ commit, group, allCommits, resolvedConfig, clnMessage }) => {
+    return clnMessage.toLowerCase();
+}
+```
+
+#### Custom Heading
+
+```javascript
+customHeadingFormatter: ({ group, commit, resolvedConfig, clnHeading }) => {
+    return clnHeading.toLowerCase();
+}
+```
+
 ## To Do
 
 - Enforce consistent header orders,
-- Custom message formatter,
 - Nicer CLI messaging/reporting,
 - Control trigger location.
