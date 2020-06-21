@@ -2,6 +2,7 @@
 
 ### 🚀 Features
 
+- Added the ability to format messages. (68dbd3c)
 - New npm release. (ef781ea)
 - Can have different prefixes and force full refresh. (2047537)
 
