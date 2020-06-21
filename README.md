@@ -232,4 +232,5 @@ turn this off by setting `pluraliseTrigger` to `false`.
 
 - Enforce consistent header orders,
 - Custom message formatter,
+- Nicer CLI messaging/reporting,
 - Control trigger location.
