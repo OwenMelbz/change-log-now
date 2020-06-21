@@ -1,5 +1,5 @@
 {
-  "name": "change-log-now",
+  "name": "automatic-changelog",
   "description": "Automatically generate a CHANGELOG based off your commit messages.",
   "version": "1.0.3",
   "main": "src/cli.js",
@@ -9,7 +9,8 @@
   "keywords": [
     "git",
     "changelog",
-    "generator"
+    "generator",
+    "automatic"
   ],
   "author": "owenm@hey.com",
   "license": "MIT",

@@ -1,4 +1,4 @@
-# Change Log NOW!!!
+# Change Log NOW!!! (automatic-changelog)
 
 Change Log NOW!!! (CLN) is a simple CLI tool which will generate you a CHANGELOG file using pre-defined trigger words
 to extract specific commits based off defined conventions.
@@ -23,7 +23,7 @@ Into this!
 
 ## Features
 
-- You can now configure your triggers yoursself! (570e69e9e)
+- You can now configure your triggers yourself! (570e69e9e)
 
 ## Bugs
 
@@ -38,18 +38,18 @@ CLN can be installed globally, or within your project so you can set up a commit
 ```bash
 # Globally
 
-npm install -g change-log-now
-yarn add -g change-log-now
+npm install -g automatic-changelog
+yarn add -g automatic-changelog
 
 # Locally
 
-npm install change-log-now -D
-yarn add change-log-now -D
+npm install automatic-changelog -D
+yarn add automatic-changelog -D
 ```
 
 # Usage
 
-CLN comes with a default config which can be found at `node_modules/change-log-now/src/defaultConfig.js` however you should
+CLN comes with a default config which can be found at `node_modules/automatic-changelog/src/defaultConfig.js` however you should
 publish the config and configure it to your desired convention.
 
 You can publish it by changing into your GIT repo directory and running:
