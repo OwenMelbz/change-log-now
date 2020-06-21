@@ -2,6 +2,7 @@
 
 ### 🚀 Features
 
+- Changelog order now respects order from the config. (cdaf354)
 - Added useful console output messages. (4d5b857)
 - Added the ability to format messages. (68dbd3c)
 - New npm release. (ef781ea)

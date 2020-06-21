@@ -234,6 +234,8 @@ triggers: {
 
 The key of the entry is the heading, and the value of the entry is the trigger word.
 
+The order you define the triggers within your config, will be the order they appear as headings in your changelog.
+
 ### Pluralisation
 
 By default, we pluralise your trigger word before using it as a heading e.g. `Bug` becomes `Bugs` - you can 
