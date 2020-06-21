@@ -6,9 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "git",
+    "changelog",
+    "generator"
+  ],
+  "author": "owenm@hey.com",
+  "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.0",
     "commander": "^5.1.0",

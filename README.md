@@ -232,4 +232,4 @@ turn this off by setting `pluraliseTrigger` to `false`.
 
 - Enforce consistent header orders,
 - Custom message formatter,
-- Control trigger location, 
+- Control trigger location.
