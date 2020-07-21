@@ -26,7 +26,7 @@
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "git-parse": "^1.0.4",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "log-utils": "^1.0.0",
     "luxon": "^1.24.1",
     "plural": "^1.1.0"
